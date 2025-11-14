@@ -1,0 +1,24 @@
+${AnsiColor.BRIGHT_BLUE}
+   _____                 _                            _____ _               _
+  | ____|_ __ ___  _ __ | | ___  _   _  ___  ___     | ____| |__   ___  ___| | _____ _ __
+  |  _| | '_ ` _ \| '_ \| |/ _ \| | | |/ _ \/ _ \____|  _| | '_ \ / _ \/ __| |/ / _ \ '__|
+  | |___| | | | | | |_) | |  __/| |_| |  __/  __/____| |___| | | |  __/ (__|   <  __/ |
+  |_____|_| |_| |_| .__/|_|\___| \__, |\___|\___|    |_____|_| |_|\___|\___|_|\_\___|_|
+                  |_|            |___/
+${AnsiColor.BRIGHT_GREEN}
+                🚀  EMPLOYEE CHECKING PLATFORM  🚀
+${AnsiColor.BRIGHT_YELLOW}
+          Smart Employee Verification & Attendance System
+${AnsiColor.BRIGHT_BLACK}
+        ------------------------------------------------
+${AnsiColor.BRIGHT_CYAN}
+        :: Application Name :: Employee Checking Platform
+        :: Build Version     :: ${application.version:1.0.0}
+        :: Spring Boot       :: ${spring-boot.version}
+        :: Started At        :: ${application.formatted-date}
+${AnsiColor.BRIGHT_BLACK}
+        ------------------------------------------------
+${AnsiColor.BRIGHT_GREEN}
+        ✅ System online. Ready to verify employees...
+${AnsiColor.BRIGHT_BLACK}
+        © 2025 Employee Checking Platform
