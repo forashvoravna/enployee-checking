@@ -1,6 +1,7 @@
 package com.example.employeecheckingplatform.service;
 
 import com.example.employeecheckingplatform.dto.*;
+import com.example.employeecheckingplatform.dto.vedemost.VedemostProjection;
 import com.example.employeecheckingplatform.dto.javob.JavobDto;
 import com.example.employeecheckingplatform.dto.projection.AnswerRowProjection;
 import com.example.employeecheckingplatform.dto.projection.AttemptHeaderProjection;
@@ -14,9 +15,16 @@ import com.example.employeecheckingplatform.exception.NotFoundException;
 import com.example.employeecheckingplatform.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.*;
@@ -27,7 +35,7 @@ import java.util.stream.Collectors;
 public class UrinishService {
 
     private final UrinishRepository urinishRepo;
-    private final FoydalanuvchiRepository foydalanuvchiRepo;
+    private final UserRepository userRepository;
     private final ImtihonRepository imtihonRepo;
     private final SavolRepository savolRepo;
     private final VariantRepository variantRepo;
@@ -62,7 +70,7 @@ public class UrinishService {
     @Transactional
     public UrinishResponseDto start(Long imtihonId, Principal principal) {
         String username = principal.getName();
-        var user = foydalanuvchiRepo.findByUsername(username)
+        var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
         Imtihon imtihon = imtihonRepo.findById(imtihonId)
                 .orElseThrow(() -> new NotFoundException("Imtihon topilmadi"));
@@ -73,15 +81,15 @@ public class UrinishService {
         }
 
         // Attempt limit (count only finished attempts)
-        var finished = java.util.List.of("YAKUNLANGAN");
-        int attempts = urinishRepo.countByImtihon_IdAndFoydalanuvchi_IdAndHolatiIn(
+        var finished = java.util.List.of(STATUS_FINISHED);
+        int attempts = urinishRepo.countByImtihon_IdAndUser_IdAndHolatiIn(
                 imtihonId, user.getId(), finished);
         if (attempts >= imtihon.getMaxUrinish()) {
             throw new BusinessException("Urinishlar limiti tugagan");
         }
 
         // Parallel in-progress check
-        int inProgress = urinishRepo.countByImtihon_IdAndFoydalanuvchi_IdAndHolati(
+        int inProgress = urinishRepo.countByImtihon_IdAndUser_IdAndHolati(
                 imtihonId, user.getId(), STATUS_IN_PROGRESS);
         if (inProgress > 0) {
             throw new BusinessException("Sizda davom etayotgan urinish bor");
@@ -90,7 +98,7 @@ public class UrinishService {
         // Create Urinish
         Urinish u = Urinish.builder()
                 .imtihon(imtihon)
-                .foydalanuvchi(foydalanuvchiRepo.getReferenceById(user.getId()))
+                .user(userRepository.getReferenceById(user.getId()))
                 .boshladi(Instant.now())
                 .holati(STATUS_IN_PROGRESS)
                 .ball(0)
@@ -168,7 +176,7 @@ public class UrinishService {
 
 
     @Transactional
-    public Javob answer(Long urinishId, AnswerDto dto) {
+    public Javob answer(Long urinishId, AnswerDto dto, User currentUser) {
         var u = urinishRepo.findById(urinishId)
                 .orElseThrow(() -> new NotFoundException("Urinish topilmadi"));
         if (!STATUS_IN_PROGRESS.equals(u.getHolati()))
@@ -187,7 +195,7 @@ public class UrinishService {
         if (!v.getSavol().getId().equals(s.getId()))
             throw new BusinessException("Variant savolga tegishli emas");
 
-        javobRepo.upsertAnswer(urinishId, dto.savolId(), dto.variantId());
+        javobRepo.upsertAnswer(urinishId, dto.savolId(), dto.variantId(), currentUser.getId());
 
         return javobRepo.findOneByUrinishIdAndSavolId(urinishId, dto.savolId());
     }
@@ -252,8 +260,8 @@ public class UrinishService {
                 e.getId(),
                 e.getImtihon() != null ? e.getImtihon().getId() : null,
                 e.getImtihon() != null ? e.getImtihon().getNomi() : null,
-                e.getFoydalanuvchi() != null ? e.getFoydalanuvchi().getId() : null,
-                e.getFoydalanuvchi() != null ? e.getFoydalanuvchi().getUsername() : null,
+                e.getUser() != null ? e.getUser().getId() : null,
+                e.getUser() != null ? e.getUser().getUsername() : null,
                 e.getBoshladi(),
                 e.getTugadi(),
                 e.getHolati(),
@@ -289,12 +297,13 @@ public class UrinishService {
 
         return new UrinishDetailDto(
                 h.getId(),
-                h.getFoydalanuvchiId(),
-                h.getFoydalanuvchiIsm(),
+                h.getUserId(),
+                h.getUserIsm(),
                 h.getImtihonId(),
                 h.getImtihonNomi(),
                 h.getHolati(),
                 h.getBall(),
+                h.getSavolSoni(),
                 h.getBoshlandi(),
                 h.getTugadi(),
                 javoblar,
@@ -303,7 +312,7 @@ public class UrinishService {
     }
 
     private Long currentUserId(Principal principal) {
-        var u = foydalanuvchiRepo.findByUsername(principal.getName())
+        var u = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
         return u.getId();
     }
@@ -339,12 +348,13 @@ public class UrinishService {
         for (var h : headers) {
             out.add(new UrinishDetailDto(
                     h.getUrinishId(),
-                    h.getFoydalanuvchiId(),
-                    h.getFoydalanuvchiIsm(),
+                    h.getUserId(),
+                    h.getUserIsm(),
                     h.getImtihonId(),
                     h.getImtihonNomi(),
                     h.getHolati(),
                     h.getBall(),
+                    h.getSavolSoni(),
                     h.getBoshlandi(),
                     h.getTugadi(),
                     answersByAttempt.getOrDefault(h.getUrinishId(), List.of()),
@@ -353,5 +363,6 @@ public class UrinishService {
         }
         return out;
     }
+
 
 }

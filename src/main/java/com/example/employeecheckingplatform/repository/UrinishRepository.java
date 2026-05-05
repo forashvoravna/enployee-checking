@@ -1,5 +1,7 @@
 package com.example.employeecheckingplatform.repository;
 
+import com.example.employeecheckingplatform.dto.vedemost.VedemostProjection;
+import com.example.employeecheckingplatform.dto.otishga.LastGradeProjection;
 import com.example.employeecheckingplatform.dto.projection.AnswerRowProjection;
 import com.example.employeecheckingplatform.dto.projection.AttemptHeaderProjection;
 import com.example.employeecheckingplatform.dto.urinish.UrinishHeaderRow;
@@ -9,20 +11,23 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface UrinishRepository extends JpaRepository<Urinish, Long> {
 
-    int countByImtihon_IdAndFoydalanuvchi_IdAndHolatiIn(Long imtihonId, Long foydalanuvchiId, Collection<String> holatlar);
+    // 1. countBy... metodlarida foydalanuvchi maydoni entityda 'user' deb nomlangan bo'lsa:
+    int countByImtihon_IdAndUser_IdAndHolatiIn(Long imtihonId, Long userId, Collection<String> holatlar);
 
-    int countByImtihon_IdAndFoydalanuvchi_IdAndHolati(Long imtihonId, Long foydalanuvchiId, String holat);
+    int countByImtihon_IdAndUser_IdAndHolati(Long imtihonId, Long userId, String holat);
 
+    // 2. SQL querylarda 'users' jadvaliga va 'user_id' ustuniga murojaat qilish kerak
     @Query(value = """
                 SELECT u.*
                   FROM urinish u
-                  JOIN foydalanuvchi f ON f.id = u.foydalanuvchi_id
+                  JOIN users f ON f.id = u.user_id
                   JOIN imtihon i       ON i.id = u.imtihon_id
                  ORDER BY u.boshladi DESC
             """, nativeQuery = true)
@@ -32,7 +37,7 @@ public interface UrinishRepository extends JpaRepository<Urinish, Long> {
                 SELECT u.*
                   FROM urinish u
                   JOIN imtihon i       ON i.id = u.imtihon_id
-                  JOIN foydalanuvchi f ON f.id = u.foydalanuvchi_id
+                  JOIN users f ON f.id = u.user_id
                  WHERE u.id = :id
                 LIMIT 1
             """, nativeQuery = true)
@@ -77,19 +82,21 @@ public interface UrinishRepository extends JpaRepository<Urinish, Long> {
             """, nativeQuery = true)
     int finishAttempt(@Param("urinishId") Long urinishId);
 
+    // foydalanuvchi_id o'rniga user_id, toliq_ism o'rniga first_name/last_name ishlatildi
     @Query(value = """
                 SELECT u.id                    AS id,
-                       f.id                    AS foydalanuvchiId,
-                       f.toliq_ism             AS foydalanuvchiIsm,
+                       f.id                    AS userId,
+                       CONCAT(f.last_name, ' ', f.first_name) AS userIsm,
                        i.id                    AS imtihonId,
                        i.nomi                  AS imtihonNomi,
+                       i.savol_soni            AS savolSoni,
                        u.holati                AS holati,
                        u.ball                  AS ball,
                        u.boshladi              AS boshlandi,
                        u.tugadi                AS tugadi,
                        u.baho                  AS baho
                   FROM urinish u
-                  JOIN foydalanuvchi f ON f.id = u.foydalanuvchi_id
+                  JOIN users f ON f.id = u.user_id
                   JOIN imtihon i       ON i.id = u.imtihon_id
                  WHERE u.id = :urinishId
             """, nativeQuery = true)
@@ -98,10 +105,11 @@ public interface UrinishRepository extends JpaRepository<Urinish, Long> {
     @Query(value = """
         SELECT
           u.id                 AS urinishId,
-          f.id                 AS foydalanuvchiId,
-          f.toliq_ism          AS foydalanuvchiIsm,
+          f.id                 AS userId,
+          CONCAT(f.last_name, ' ', f.first_name) AS userIsm,
           i.id                 AS imtihonId,
           i.nomi               AS imtihonNomi,
+          i.savol_soni         AS savolSoni,
           u.holati             AS holati,
           u.ball               AS ball,
           u.boshladi           AS boshlandi,
@@ -109,8 +117,8 @@ public interface UrinishRepository extends JpaRepository<Urinish, Long> {
           u.baho               AS baho
         FROM urinish u
         JOIN imtihon i       ON i.id = u.imtihon_id
-        JOIN foydalanuvchi f ON f.id = u.foydalanuvchi_id
-        WHERE u.foydalanuvchi_id = :userId
+        JOIN users f ON f.id = u.user_id
+        WHERE u.user_id = :userId
         ORDER BY u.boshladi DESC
         """, nativeQuery = true)
     List<AttemptHeaderProjection> findAttemptHeaders(@Param("userId") Long userId);
@@ -131,5 +139,23 @@ public interface UrinishRepository extends JpaRepository<Urinish, Long> {
         ORDER BY u.id, s.id
         """, nativeQuery = true)
     List<AnswerRowProjection> findAnswersByAttemptIds(@Param("attemptIds") Collection<Long> attemptIds);
+
+    @Query(value = """
+        SELECT
+          u.id        AS urinishId,
+          i.id        AS imtihonId,
+          i.nomi      AS imtihonNomi,
+          u.ball      AS ball,
+          u.baho      AS baho,
+          u.tugadi    AS tugadi
+        FROM urinish u
+        JOIN imtihon i ON i.id = u.imtihon_id
+        WHERE u.user_id = :userId
+          AND u.holati = 'YAKUNLANGAN'
+        ORDER BY u.tugadi DESC NULLS LAST
+        LIMIT 1
+        """, nativeQuery = true)
+    LastGradeProjection findLastFinishedByUser(@Param("userId") Long userId);
+
 
 }

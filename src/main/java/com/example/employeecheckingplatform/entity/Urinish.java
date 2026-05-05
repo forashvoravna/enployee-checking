@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "urinish")
@@ -14,18 +16,23 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Urinish {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Urinish extends AbstractEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "imtihon_id", nullable = false)
     private Imtihon imtihon;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "foydalanuvchi_id", nullable = false)
-    private Foydalanuvchi foydalanuvchi;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @OneToMany(mappedBy = "urinish", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<UrinishSavol> urinishSavollari = new ArrayList<>();
+
+    @OneToMany(mappedBy = "urinish", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Javob> javoblar = new ArrayList<>();
 
     @Column(nullable = false)
     private Instant boshladi;

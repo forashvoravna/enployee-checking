@@ -51,6 +51,7 @@ public class PythonAuthClient {
         try {
             var resp = rest.postForEntity(tokenUrl, new HttpEntity<>(form, headers), TokenResponse.class);
             var body = resp.getBody();
+            assert body != null;
             if (body.access_token() == null || body.access_token().isBlank())
                 throw new IllegalStateException("Token javobi yaroqsiz");
             cachedToken = body.access_token();

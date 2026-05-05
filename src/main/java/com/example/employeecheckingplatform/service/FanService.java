@@ -21,13 +21,13 @@ public class FanService {
 
     @Transactional
     public FanResponseDto create(FanCreateDto dto) {
-        var f = Fan.builder().nomi(dto.nomi()).tavsif(dto.tavsif()).faol(dto.faol() != null ? dto.faol() : true).build();
+        var f = Fan.builder().nomi(dto.nomi()).tavsif(dto.tavsif()).build();
         return toDto(repo.save(f));
     }
 
     @Transactional(readOnly = true)
     public List<FanResponseDto> faol() {
-        return repo.findAllByFaolIs(true).stream().map(this::toDto).toList();
+        return repo.findAllByDeletedFalse().stream().map(this::toDto).toList();
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +45,6 @@ public class FanService {
         var f = repo.findById(id).orElseThrow(() -> new NotFoundException("Fan topilmadi"));
         f.setNomi(dto.nomi());
         f.setTavsif(dto.tavsif());
-        f.setFaol(dto.faol());
         return toDto(f);
     }
 
@@ -62,7 +61,6 @@ public class FanService {
                 fan.getId(),
                 fan.getNomi(),
                 fan.getTavsif(),
-                fan.getFaol(),
                 savolSoni
         );
     }

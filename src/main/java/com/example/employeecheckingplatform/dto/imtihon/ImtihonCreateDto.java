@@ -13,5 +13,6 @@ public record ImtihonCreateDto(
         @Min(1) Integer savolSoni,
         @NotNull @Min(0) @Max(100) Integer aloPct,
         @NotNull @Min(0) @Max(100) Integer yaxshiPct,
-        @NotNull @Min(0) @Max(100) Integer qoniqarliPct
-) {}
+        @NotNull @Min(0) @Max(100) Integer qoniqarliPct,
+        @NotNull @Min(0) @Max(100) Integer tekshirishVaqti,
+        @NotNull @Min(0) @Max(100) Integer tekshirishSoni) {}

@@ -8,7 +8,11 @@ public record ImtihonBriefDTO1(
         Integer savolSoni,
         Long fanId,
         String fanNomi,
-
+        Integer tekshirishSoni,
+        Integer tekshirishVaqti,
+        Integer aloPct,
+        Integer yaxshiPct,
+        Integer qoniqarliPct,
         Integer attemptsUsed,
         Integer attemptsLeft,
         Boolean canStart,

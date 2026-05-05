@@ -5,12 +5,13 @@ import java.time.Instant;
 
 public interface AttemptHeaderProjection {
     Long getUrinishId();
-    Long getFoydalanuvchiId();
-    String getFoydalanuvchiIsm();
+    Long getUserId();
+    String getUserIsm();
     Long getImtihonId();
     String getImtihonNomi();
     String getHolati();
     Integer getBall();
+    Integer getSavolSoni();
     Instant getBoshlandi();
     Instant getTugadi();
     String getBaho();

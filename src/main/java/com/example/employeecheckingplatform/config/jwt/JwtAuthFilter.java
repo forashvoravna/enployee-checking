@@ -1,6 +1,6 @@
 package com.example.employeecheckingplatform.config.jwt;
 
-import com.example.employeecheckingplatform.repository.FoydalanuvchiRepository;
+import com.example.employeecheckingplatform.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwt;
-    private final FoydalanuvchiRepository userRepo;
+    private final UserRepository userRepo;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)

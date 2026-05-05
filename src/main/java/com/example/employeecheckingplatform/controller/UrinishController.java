@@ -2,9 +2,11 @@ package com.example.employeecheckingplatform.controller;
 
 import com.example.employeecheckingplatform.dto.AnswerDto;
 import com.example.employeecheckingplatform.dto.urinish.UrinishDetailDto;
+import com.example.employeecheckingplatform.entity.User;
 import com.example.employeecheckingplatform.service.UrinishService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,8 +43,8 @@ public class UrinishController {
     }
 
     @PostMapping("/{id}/answer")
-    public ResponseEntity<?> answer(@PathVariable Long id, @RequestBody AnswerDto dto) {
-        return ResponseEntity.ok(service.answer(id, dto));
+    public ResponseEntity<?> answer(@PathVariable Long id, @RequestBody AnswerDto dto, @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(service.answer(id, dto, user));
     }
 
     @PostMapping("/{id}/finish")

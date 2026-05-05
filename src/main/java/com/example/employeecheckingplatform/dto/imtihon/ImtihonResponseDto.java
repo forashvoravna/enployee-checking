@@ -1,7 +1,7 @@
 // Imtihon javobi (frontendga)
 package com.example.employeecheckingplatform.dto.imtihon;
 
-import com.example.employeecheckingplatform.dto.RuxsatFoydalanuvchiDto;
+import com.example.employeecheckingplatform.dto.RuxsatUserDto;
 
 import java.util.List;
 
@@ -14,8 +14,9 @@ public record ImtihonResponseDto(
         Integer aloPct,
         Integer yaxshiPct,
         Integer qoniqarliPct,
-        Boolean faol,
+        Integer tekshirishVaqti,
+        Integer tekshirishSoni,
         Long fanId,
         String fanNomi,
-        List<RuxsatFoydalanuvchiDto> ruxsatEtilganlar
+        List<RuxsatUserDto> ruxsatEtilganlar
 ) {}

@@ -26,6 +26,9 @@ spring:
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
+  sql:
+    init:
+      mode: always
 
 logging:
   level:
@@ -49,24 +52,25 @@ app:
   jwt:
     # Hech qachon kodga secretni qattiq yozmang; .env dan oling
     secret: ${APP_JWT_SECRET:change_this_to_a_256bit_random_secret_at_least_32_chars_long}
-    access-exp-min: ${APP_JWT_ACCESS_EXP_MIN:60}  # 60 daqiqa
+    access-exp-min: ${APP_JWT_ACCESS_EXP_MIN:300}  # 300 daqiqa
   admin:
     username: ${APP_ADMIN_USERNAME:admin}   # .env orqali bering; bo'sh bo'lsa seed SKIP
     password: ${APP_ADMIN_PASSWORD:admin}
     name: ${APP_ADMIN_NAME:Super Admin}
   tashkilot:
     name: ${APP_TASHKILOT_NAME:Mudofaa vazirligi}
-    turi: ${APP_TASHKILOT_TURI:MV}
+
 
   face:
     token:
-      url: ${FACE_TOKEN_URL:http://192.168.202.17:8002/api/v1/auth/oauth2/token}
-      basic-username: ${FACE_BASIC_USERNAME:test-user-1}
-      basic-password: ${FACE_BASIC_PASSWORD:G9xLm4RtP2qVz8Wk}
-      username: ${FACE_RO_USERNAME:test-user-1}
-      password: ${FACE_RO_PASSWORD:X7dK9pQa}
+      url: ${FACE_TOKEN_URL:http://192.168.202.27:8002/api/v1/auth/oauth2/token}
+      basic-username: ${FACE_BASIC_USERNAME:test}
+      basic-password: ${FACE_BASIC_PASSWORD:Aa990173541}
+      username: ${FACE_RO_USERNAME:test}
+      password: ${FACE_RO_PASSWORD:Aa990173541}
     upload:
-      url: ${FACE_UPLOAD_URL:http://192.168.202.17:8002/api/v1/faceid/recognize}
+      url: ${FACE_UPLOAD_URL:http://192.168.202.27:8002/api/v1/faceid/recognize}
+      url1: ${FACE_UPLOAD_URL1:http://192.168.202.27:8002}
       param-name: ${FACE_UPLOAD_PARAM:image}
       as-form: ${FACE_UPLOAD_AS_FORM:true}
       data-uri: ${FACE_UPLOAD_DATA_URI:false}
@@ -83,13 +87,19 @@ application:
 
 external:
   basic:
-    username: external-server
+    username: test-user-1
     password: BASIC_PASS_123
   jwt:
-    username: api-client
+    username: test-user-1
     password: JWT_PASS_456
 
 jwt:
   secret: "MY_JWT_SECRET_KEY_123"
   expiration-ms: 3600000
+
+
+upload:
+  folder: DOWNLOAD
+  image-folder: IMAGES
+
 

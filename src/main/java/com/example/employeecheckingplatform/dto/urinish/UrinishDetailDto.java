@@ -13,6 +13,7 @@ public record UrinishDetailDto(
         String imtihonNomi,
         String holati,
         Integer ball,
+        Integer savollarSoni,
         Instant boshlandi,
         Instant tugadi,
         List<JavobDto> javoblar,

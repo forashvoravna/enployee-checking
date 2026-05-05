@@ -12,10 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Javob {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Javob extends AbstractEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "urinish_id", nullable = false)
@@ -29,5 +26,5 @@ public class Javob {
     @JoinColumn(name = "variant_id", nullable = false)
     private Variant selectedVariant;
 
-    private Boolean togri; // finishda belgilanadi
+    private Boolean togri;
 }

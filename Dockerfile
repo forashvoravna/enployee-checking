@@ -14,10 +14,10 @@ FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 # 1-bosqichdan .jar ni olish
-COPY --from=builder /app/target/EmployeeCheckingPlatform-*.jar app.jar
+COPY --from=builder /app/target/*-SNAPSHOT.jar app.jar
 
 # 8080 portni ochamiz
 EXPOSE 8080
 
-# ENTRYPOINT — ilovani ishga tushirish
-ENTRYPOINT ["java","-jar","app.jar"]
+# ENTRYPOINT — avval papkani tekshirib ruxsat beradi, keyin ilovani ishga tushiradi
+ENTRYPOINT ["sh", "-c", "mkdir -p /app/IMAGES && chmod 777 /app/IMAGES && java -jar app.jar"]

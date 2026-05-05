@@ -44,24 +44,24 @@ public class ImtihonController {
     }
 
     @PostMapping("/{imtihonId}/ruxsat/qoshish")
-    public ResponseEntity<?> grantUsers(@PathVariable Long imtihonId, @RequestBody java.util.Set<Long> foydalanuvchiIds) {
-        return ResponseEntity.ok(service.grantUsers(imtihonId, foydalanuvchiIds));
+    public ResponseEntity<?> grantUsers(@PathVariable Long imtihonId, @RequestBody java.util.Set<Long> userIds) {
+        return ResponseEntity.ok(service.grantUsers(imtihonId, userIds));
     }
 
     /**
      * Ixtiyoriy: to‘liq almashtirish
      */
     @PutMapping("/{imtihonId}/ruxsat")
-    public ResponseEntity<?> setUsers(@PathVariable Long imtihonId, @RequestBody java.util.Set<Long> foydalanuvchiIds) {
-        return ResponseEntity.ok(service.setUsers(imtihonId, foydalanuvchiIds));
+    public ResponseEntity<?> setUsers(@PathVariable Long imtihonId, @RequestBody java.util.Set<Long> userIds) {
+        return ResponseEntity.ok(service.setUsers(imtihonId, userIds));
     }
 
     /**
      * Ixtiyoriy: ruxsatdan olib tashlash
      */
     @PatchMapping("/{imtihonId}/ruxsat/revoke")
-    public ResponseEntity<?> revokeUsers(@PathVariable Long imtihonId, @RequestBody java.util.Set<Long> foydalanuvchiIds) {
-        return ResponseEntity.ok(service.revokeUsers(imtihonId, foydalanuvchiIds));
+    public ResponseEntity<?> revokeUsers(@PathVariable Long imtihonId, @RequestBody java.util.Set<Long> userIds) {
+        return ResponseEntity.ok(service.revokeUsers(imtihonId, userIds));
     }
 
     @GetMapping("/my")

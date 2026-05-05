@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -15,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Imtihon {
+public class Imtihon extends AbstractEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,14 +43,19 @@ public class Imtihon {
     @Column(nullable = false)
     private Integer qoniqarliPct = 56;
 
+    private Integer tekshirishVaqti = 10;
+    private Integer tekshirishSoni = 3;
+
     // ixtiyoriy — faqat belgilangan userlar topshira oladi
     @ManyToMany
     @JoinTable(name = "imtihon_user",
             joinColumns = @JoinColumn(name = "imtihon_id"),
-            inverseJoinColumns = @JoinColumn(name = "foydalanuvchi_id"))
+            inverseJoinColumns = @JoinColumn(name = "user_id", nullable = true))
     @Builder.Default
-    private Set<Foydalanuvchi> ruxsatEtilganlar = new HashSet<>();
+    private Set<User> ruxsatEtilganlar = new HashSet<>();
 
-    @Column(nullable = false)
-    private Boolean faol = true;
+    @OneToMany(mappedBy = "imtihon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Urinish> urinishlar = new ArrayList<>();
+
 }

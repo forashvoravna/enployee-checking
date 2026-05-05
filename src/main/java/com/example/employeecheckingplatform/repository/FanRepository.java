@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface FanRepository extends JpaRepository<Fan, Long> {
 
-    List<Fan> findAllByFaolIs(Boolean faol);
+    List<Fan> findAllByDeletedFalse();
 }
 

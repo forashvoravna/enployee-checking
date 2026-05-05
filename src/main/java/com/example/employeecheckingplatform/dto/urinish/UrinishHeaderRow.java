@@ -5,9 +5,9 @@ import java.time.Instant;
 public interface UrinishHeaderRow {
     Long getId();
 
-    Long getFoydalanuvchiId();
+    Long getUserId();
 
-    String getFoydalanuvchiIsm();
+    String getUserIsm();
 
     Long getImtihonId();
 
@@ -16,6 +16,8 @@ public interface UrinishHeaderRow {
     String getHolati();
 
     Integer getBall();
+
+    Integer getSavolSoni();
 
     Instant getBoshlandi();
 

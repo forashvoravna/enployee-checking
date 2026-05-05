@@ -1,9 +1,13 @@
 package com.example.employeecheckingplatform.config;// package com.example.employeecheckingplatform.service;  // <- config emas, servis qatlamida tursin!
 
-import com.example.employeecheckingplatform.config.PythonAuthClient;
-import com.example.employeecheckingplatform.repository.FoydalanuvchiRepository;
+import com.example.employeecheckingplatform.dto.BranchDto;
+import com.example.employeecheckingplatform.dto.PersonRawDto;
+import com.example.employeecheckingplatform.dto.user.Person;
+import com.example.employeecheckingplatform.dto.user.PersonForFaceResult;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -20,10 +26,13 @@ public class FaceBridgeClient {
 
     private final RestTemplate rest;
     private final PythonAuthClient auth;                // Sizda mavjud bo‘lgan token provayder
-    private final FoydalanuvchiRepository foy;         // (ixtiyoriy) topilgan jshshir bo‘yicha user qidirish uchun
+    private final ObjectMapper mapper;
 
     @Value("${app.face.upload.url}")
     private String uploadUrl;
+
+    @Value("${app.face.upload.url1}")
+    private String uploadUrl1;
 
     /**
      * Server kutilayotgan JSON field nomi: odatda "image"
@@ -68,7 +77,7 @@ public class FaceBridgeClient {
 
         // So‘rov DTO
         FaceUploadRequest reqDto = new FaceUploadRequest();
-        reqDto.setIsPhoto("Y");
+        reqDto.setIsPhoto("N");
         reqDto.setTransactionId("txn-" + UUID.randomUUID());
         reqDto.setImageFieldName(paramName);
         reqDto.setImage(payload);
@@ -231,5 +240,58 @@ public class FaceBridgeClient {
         private String rankNomi;
 
         private String avatar; // base64
+    }
+
+    public PersonForFaceResult sendAndReturnPerson(String base64Image) throws JsonProcessingException {
+
+        String accessToken = auth.getAccessToken();
+
+        // HTTP so‘rovni tayyorlaymiz
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+
+        Map<String, Object> body = Map.of(
+                "image", base64Image,
+                "is_photo", "N",
+                "transaction_id", "TXN-" + UUID.randomUUID()
+        );
+
+        HttpEntity<?> req = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> resp = rest.postForEntity(uploadUrl, req, String.class);
+
+        String respBody = resp.getBody();
+        Map<String, Object> root = mapper.readValue(respBody, Map.class);
+
+        Map<String, Object> data = (Map<String, Object>) root.get("data");
+        Map<String, Object> person = (Map<String, Object>) data.get("person");
+
+        return mapper.convertValue(person, PersonForFaceResult.class);
+    }
+
+    public PersonForFaceResult getPersonRawByJshshir(String jshshir) {
+
+        String token = auth.getAccessToken();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> req = new HttpEntity<>(headers);
+
+        String url = uploadUrl1 + "/api/v1/persons/by-jshshir/" + jshshir;
+
+        ResponseEntity<Map> resp =
+                rest.exchange(url, HttpMethod.GET, req, Map.class);
+
+        Map<?, ?> root = (Map<?, ?>) resp.getBody();
+
+        if (root == null || !(Boolean) root.get("success")) {
+            throw new RuntimeException("Person topilmadi: " + root);
+        }
+
+        return mapper.convertValue(root.get("data"), PersonForFaceResult    .class);
     }
 }

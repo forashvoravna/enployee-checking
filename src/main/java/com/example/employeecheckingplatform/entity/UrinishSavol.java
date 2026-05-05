@@ -5,11 +5,12 @@ import lombok.*;
 
 @Entity
 @Table(name = "urinish_savol", uniqueConstraints = @UniqueConstraint(columnNames = {"urinish_id", "savol_id"}))
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class UrinishSavol {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UrinishSavol extends AbstractEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "urinish_id", nullable = false)

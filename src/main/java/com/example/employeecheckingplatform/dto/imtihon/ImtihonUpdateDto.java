@@ -12,6 +12,7 @@ public record ImtihonUpdateDto(
         Integer aloPct,
         Integer yaxshiPct,
         Integer qoniqarliPct,
-        Boolean faol
+        Integer tekshirishVaqti,
+        Integer tekshirishSoni
 
 ) {}

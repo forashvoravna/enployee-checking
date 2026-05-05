@@ -9,6 +9,12 @@ public interface ImtihonBriefDTO {
     Integer getSavolSoni();
     Long getFanId();
     String getFanNomi();
+    Integer getTekshirishSoni();
+    Integer getTekshirishVaqti();
+
+    Integer getAloPct();
+    Integer getYaxshiPct();
+    Integer getQoniqarliPct();
 
     Integer getAttemptsUsed();
     Integer getAttemptsLeft();

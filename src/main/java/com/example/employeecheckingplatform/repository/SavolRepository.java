@@ -14,10 +14,10 @@ public interface SavolRepository extends JpaRepository<Savol, Long> {
 
     List<Savol> findAllByIdIn(Iterable<Long> ids);
     @Query(value = """
-    SELECT DISTINCT ON (s.id) s.id
+    SELECT s.id
     FROM savol s
     WHERE s.fan_id = :fanId
-    ORDER BY s.id, random()
+    ORDER BY random()
     LIMIT :limit
     """, nativeQuery = true)
     List<Long> findRandomIdsByFanId(@Param("fanId") Long fanId, @Param("limit") int limit);

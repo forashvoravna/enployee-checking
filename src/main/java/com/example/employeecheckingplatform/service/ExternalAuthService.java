@@ -2,6 +2,7 @@
 package com.example.employeecheckingplatform.service;
 
 import com.example.employeecheckingplatform.config.jwt.JwtService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class ExternalAuthService {
     @Value("${external.jwt.password}")
     private String jwtPassword;
 
+    @Getter
     @Value("${jwt.expiration-ms:3600000}")
     private long expirationMs;
 
@@ -63,7 +65,4 @@ public class ExternalAuthService {
         return jwtService.generateForSubject(username, Map.of("client", "external"));
     }
 
-    public long getExpirationMs() {
-        return expirationMs;
-    }
 }

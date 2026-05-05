@@ -6,5 +6,5 @@ import java.util.Set;
 
 public record ImtihonGrantUsersDto(
         @NotNull Long imtihonId,
-        @NotEmpty Set<Long> foydalanuvchiIds
+        @NotEmpty Set<Long> userIds
 ) {}

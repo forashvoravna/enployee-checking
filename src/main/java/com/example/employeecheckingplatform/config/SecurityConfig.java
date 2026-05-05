@@ -1,7 +1,7 @@
 package com.example.employeecheckingplatform.config;
 
 import com.example.employeecheckingplatform.config.jwt.JwtAuthFilter;
-import com.example.employeecheckingplatform.repository.FoydalanuvchiRepository;
+import com.example.employeecheckingplatform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +29,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final FoydalanuvchiRepository userRepo;
+    private final UserRepository userRepo;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -54,8 +54,8 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // preflight'ni qo'yib yuborish
-                        .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/api/urinish/test","/hikvision/events").permitAll()
-                        .requestMatchers("/api/foydalanuvchi/**", "/api/tashkilot/**").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/api/urinish/test","/hikvision/events","/api/external/token").permitAll()
+                        .requestMatchers("/api/user/**", "/api/unit/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -66,7 +66,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         var cfg = new CorsConfiguration();
         // RUXSAT BERILGAN FRONTEND ORIGINLAR
-        cfg.setAllowedOrigins(List.of("https://facequiz.mv","https://api.facequiz.mv","https://test.facequiz.mv"));
+        cfg.setAllowedOrigins(List.of("https://facequiz.mv","https://api.facequiz.mv","https://test.facequiz.mv", "http://192.168.202.46:5173", "http://192.168.202.48:8000"));
         // HTTP metodlar
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         // HTTP headerlar (JWT uchun 'Authorization' shart)
